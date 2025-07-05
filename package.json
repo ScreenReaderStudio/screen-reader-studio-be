@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@supabase/supabase-js": "^2.50.3",
     "axios": "^1.10.0",
     "cors": "^2.8.5",
     "dotenv": "^17.0.1",
