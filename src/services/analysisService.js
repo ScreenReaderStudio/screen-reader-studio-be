@@ -33,10 +33,19 @@ export const analyzeAccessibility = async ({ url, htmlContent }) => {
       throw new Error('URL 또는 HTML 콘텐츠 중 하나는 반드시 제공되어야 합니다.');
     }
 
-    await page.addScriptTag({ content: axeScriptContent });
+    try {
+      await page.addScriptTag({ content: axeScriptContent });
+    } catch (error) {
+      throw new Error(`axe-core script 주입 실패: ${error.message}`);
+    }
 
     const results = await page.evaluate(() => {
+      if (typeof axe === 'undefined') {
+        throw new Error('axe-core를 사용할 수 없습니다.');
+      }
+
       const options = { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'best-practice'] } };
+
       return axe.run(document, options);
     });
 
