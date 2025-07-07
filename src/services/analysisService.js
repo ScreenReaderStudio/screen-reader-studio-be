@@ -16,8 +16,18 @@ export const analyzeAccessibility = async ({ url, htmlContent }) => {
     const page = await browser.newPage();
 
     if (url) {
+      const urlObj = new URL(url);
+
+      if (!['http:', 'https:'].includes(urlObj.protocol)) {
+        throw new Error('HTTP와 HTTPS만 허용됩니다.');
+      }
+
       await page.goto(url, { waitUntil: 'networkidle0' });
     } else if (htmlContent) {
+      if (typeof htmlContent !== 'string' || htmlContent.length > 1000000) {
+        throw new Error('유효하지 않은 HTML 콘텐츠가 제공됐습니다.');
+      }
+
       await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
     } else {
       throw new Error('URL 또는 HTML 콘텐츠 중 하나는 반드시 제공되어야 합니다.');
