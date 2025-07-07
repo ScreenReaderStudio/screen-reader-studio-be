@@ -10,7 +10,8 @@ export const analyzeAccessibility = async ({ url, htmlContent }) => {
   try {
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args:
+        process.env.NODE_ENV === 'production' ? ['--no-sandbox', '--disable-setuid-sandbox'] : [],
     });
     const page = await browser.newPage();
 
