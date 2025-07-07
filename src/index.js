@@ -5,6 +5,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import authRouter from './routes/auth.js';
+import analysisRouter from './routes/analysis.js';
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use('/api/auth', authRouter);
+app.use('/api/analysis', analysisRouter);
 
 app.get('/api/users/me', (req, res) => {
   try {
