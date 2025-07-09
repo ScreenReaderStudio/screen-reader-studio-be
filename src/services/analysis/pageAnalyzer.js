@@ -22,11 +22,15 @@ async function generateScreenReaderScript(page) {
           path.unshift(selector);
           break;
         } else {
-          let sib = el,
-            nth = 1;
+          let sib = el;
+          let nth = 1;
+
           while ((sib = sib.previousElementSibling)) {
-            if (sib.nodeName.toLowerCase() == selector) nth++;
+            if (sib.nodeName.toLowerCase() === selector) {
+              nth++;
+            }
           }
+
           if (nth != 1) {
             selector += ':nth-of-type(' + nth + ')';
           }
