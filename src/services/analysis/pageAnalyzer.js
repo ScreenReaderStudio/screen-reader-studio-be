@@ -9,7 +9,7 @@ async function generateScreenReaderScript(page) {
   return page.evaluate(() => {
     function getCssSelector(el) {
       if (!(el instanceof Element)) {
-        return;
+        return null;
       }
 
       const path = [];
@@ -52,6 +52,28 @@ async function generateScreenReaderScript(page) {
       return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
     }
 
+    function getAccessibleName(el) {
+      const ariaLabel = el.getAttribute('aria-label');
+      if (ariaLabel && ariaLabel.trim()) {
+        return ariaLabel.trim();
+      }
+
+      if (el.tagName.toLowerCase() === 'img' && el.alt) {
+        return el.alt.trim();
+      }
+
+      if (el.innerText && el.innerText.trim()) {
+        return el.innerText.trim();
+      }
+
+      const title = el.getAttribute('title');
+      if (title && title.trim()) {
+        return title.trim();
+      }
+
+      return '';
+    }
+
     const script = [];
     const elements = document.querySelectorAll('body *');
 
@@ -61,28 +83,87 @@ async function generateScreenReaderScript(page) {
       }
 
       const role = el.getAttribute('role') || el.tagName.toLowerCase();
+      const name = getAccessibleName(el).replace(/\s+/g, ' ');
       let text = '';
-      let name = el.getAttribute('aria-label') || el.innerText || el.alt || el.title;
 
       if (name) {
-        name = name.trim().replace(/\s+/g, ' ');
+        let roleText = '';
 
-        if (name.length > 0 && name.length < 200) {
-          if (['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(role)) {
-            const level = role.replace('h', '');
-            text = `제목 레벨 ${level}, ${name}`;
-          } else if (role === 'a' || role === 'link') {
-            text = `링크, ${name}`;
-          } else if (role === 'button') {
-            text = `버튼, ${name}`;
-          } else if (role === 'img') {
-            text = `이미지, ${name}`;
+        switch (role) {
+          case 'h1':
+            roleText = '제목 레벨 1';
+            break;
+          case 'h2':
+            roleText = '제목 레벨 2';
+            break;
+          case 'h3':
+            roleText = '제목 레벨 3';
+            break;
+          case 'h4':
+            roleText = '제목 레벨 4';
+            break;
+          case 'h5':
+            roleText = '제목 레벨 5';
+            break;
+          case 'h6':
+            roleText = '제목 레벨 6';
+            break;
+          case 'a':
+          case 'link':
+            roleText = '링크';
+            break;
+          case 'button':
+            roleText = '버튼';
+            break;
+          case 'img':
+            roleText = '이미지';
+            break;
+          case 'nav':
+            roleText = '네비게이션';
+            break;
+          case 'main':
+            roleText = '메인 콘텐츠';
+            break;
+          case 'search':
+            roleText = '검색';
+            break;
+          case 'region':
+            roleText = '영역';
+            break;
+          case 'textbox':
+          case 'input':
+            if (!['submit', 'button', 'checkbox', 'radio', 'image'].includes(el.type)) {
+              roleText = '입력창';
+            }
+            break;
+          case 'checkbox':
+            roleText = '체크박스';
+            break;
+          case 'radio':
+            roleText = '라디오 버튼';
+            break;
+        }
+
+        if (roleText) {
+          text = `${roleText}, ${name}`;
+          if (
+            el.value &&
+            'value' in el &&
+            (role === 'textbox' || el.tagName.toLowerCase() === 'input')
+          ) {
+            text += `, 현재 값: ${el.value}`;
+          }
+          if (el.checked && 'checked' in el) {
+            text += `, 선택됨`;
           }
         }
       }
 
       if (text) {
-        script.push({ text, selector: getCssSelector(el) });
+        script.push({
+          text,
+          selector: getCssSelector(el),
+        });
       }
     });
 
