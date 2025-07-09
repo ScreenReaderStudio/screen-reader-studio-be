@@ -27,11 +27,18 @@ const highlighterScript = `
 `;
 
 export function injectHighlighterScript(htmlContent) {
-  if (!htmlContent.includes('</head>')) {
-    return htmlContent.replace('<body', `<script>${highlighterScript}</script><body`);
+  const headRegex = /(<\/head>)/i;
+  const bodyRegex = /(<body)/i;
+
+  if (headRegex.test(htmlContent)) {
+    return htmlContent.replace(headRegex, `<script>${highlighterScript}</script>$1`);
   }
 
-  return htmlContent.replace('</head>', `<script>${highlighterScript}</script></head>`);
+  if (bodyRegex.test(htmlContent)) {
+    return htmlContent.replace(bodyRegex, `<script>${highlighterScript}</script>$1`);
+  }
+
+  return `<script>${highlighterScript}</script>${htmlContent}`;
 }
 
 export async function loadPageContent(page, { url, htmlContent }) {
@@ -53,8 +60,7 @@ export async function loadPageContent(page, { url, htmlContent }) {
     }
 
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-    return htmlContent;
+    return page.content();
   }
 
   throw new Error('URL 또는 HTML 콘텐츠 중 하나는 반드시 제공되어야 합니다.');
