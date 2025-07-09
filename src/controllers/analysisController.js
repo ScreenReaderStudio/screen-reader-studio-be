@@ -1,4 +1,4 @@
-import { analyzeAccessibility } from '../services/analysisService.js';
+import { analyzeAccessibility } from '../services/analysis/index.js';
 
 export const handleAnalysisRequest = async (req, res) => {
   try {

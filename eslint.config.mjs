@@ -11,7 +11,7 @@ export default [
     languageOptions: { globals: { ...globals.node } },
   },
   {
-    files: ["src/services/analysisService.js"],
+    files: ["src/services/analysis/pageAnalyzer.js"],
     languageOptions: {
       globals: {
         ...globals.browser,
