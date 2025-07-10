@@ -60,6 +60,7 @@ export async function loadPageContent(page, { url, htmlContent }) {
     }
 
     await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
     return page.content();
   }
 
