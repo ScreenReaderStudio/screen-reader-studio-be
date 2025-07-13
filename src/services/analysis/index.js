@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer';
 import { loadPageContent, injectHighlighterScript } from './contentLoader.js';
 import { analyzePage } from './pageAnalyzer.js';
 
-export const analyzeAccessibility = async ({ url, htmlContent }) => {
+export const analyzeAccessibility = async ({ url, htmlContent, screenReader }) => {
   let browser;
 
   try {
@@ -15,7 +15,7 @@ export const analyzeAccessibility = async ({ url, htmlContent }) => {
 
     const page = await browser.newPage();
     const rawContent = await loadPageContent(page, { url, htmlContent });
-    const { screenReaderScript, accessibilityAnalysis } = await analyzePage(page);
+    const { screenReaderScript, accessibilityAnalysis } = await analyzePage(page, screenReader);
     const pageContentWithHighlighter = injectHighlighterScript(rawContent);
 
     return {

@@ -5,8 +5,8 @@ const require = createRequire(import.meta.url);
 const axeScriptContent = fs.readFileSync(require.resolve('axe-core'), 'utf-8');
 const koLocale = JSON.parse(fs.readFileSync(require.resolve('axe-core/locales/ko.json'), 'utf-8'));
 
-async function generateScreenReaderScript(page) {
-  return page.evaluate(() => {
+async function generateScreenReaderScript(page, screenReader) {
+  return page.evaluate((screenReaderType) => {
     function getCssSelector(el) {
       if (!(el instanceof Element)) {
         return null;
@@ -145,7 +145,12 @@ async function generateScreenReaderScript(page) {
         }
 
         if (roleText) {
-          text = `${roleText}, ${name}`;
+          if (screenReaderType === 'voiceover') {
+            text = `${roleText}, ${name}`;
+          }
+          if (screenReaderType === 'nvda') {
+            text = `${name}, ${roleText}`;
+          }
           if (
             el.value &&
             'value' in el &&
@@ -168,7 +173,7 @@ async function generateScreenReaderScript(page) {
     });
 
     return script;
-  });
+  }, screenReader);
 }
 
 async function runAxeAnalysis(page) {
@@ -188,9 +193,9 @@ async function runAxeAnalysis(page) {
   }, koLocale);
 }
 
-export async function analyzePage(page) {
+export async function analyzePage(page, screenReader) {
   const [screenReaderScript, accessibilityAnalysis] = await Promise.all([
-    generateScreenReaderScript(page),
+    generateScreenReaderScript(page, screenReader),
     runAxeAnalysis(page),
   ]);
 
