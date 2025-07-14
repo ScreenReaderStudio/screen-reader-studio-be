@@ -1,6 +1,7 @@
 import { analyzeAccessibility } from '../services/analysis/index.js';
+import { saveAnalysis, getAnalysisById } from '../services/analysisService.js';
 
-export const handleAnalysisRequest = async (req, res) => {
+export const performAnalysis = async (req, res) => {
   try {
     const { url, htmlContent, screenReader } = req.body;
 
@@ -13,6 +14,51 @@ export const handleAnalysisRequest = async (req, res) => {
     res.status(200).json(results);
   } catch (error) {
     console.error('분석 요청 처리 중 에러 발생:', error);
+    res.status(500).json({ message: error.message || '서버 내부 오류가 발생했습니다.' });
+  }
+};
+
+export const saveAnalysisResult = async (req, res) => {
+  try {
+    const { pageContent, accessibilityAnalysis, screenReaderScript, selectedScreenReader } =
+      req.body;
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: '인증되지 않은 사용자입니다.' });
+    }
+
+    if (!pageContent || !accessibilityAnalysis || !screenReaderScript || !selectedScreenReader) {
+      return res.status(400).json({ message: '저장할 분석 결과 데이터가 부족합니다.' });
+    }
+
+    const analysisId = await saveAnalysis({
+      userId,
+      pageContent,
+      accessibilityAnalysis,
+      screenReaderScript,
+      selectedScreenReader,
+    });
+
+    res.status(201).json({ id: analysisId, message: '분석 결과가 성공적으로 저장되었습니다.' });
+  } catch (error) {
+    console.error('분석 결과 저장 중 에러 발생:', error);
+    res.status(500).json({ message: error.message || '서버 내부 오류가 발생했습니다.' });
+  }
+};
+
+export const getAnalysisResult = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const analysis = await getAnalysisById(id);
+
+    if (!analysis) {
+      return res.status(404).json({ message: '분석 결과를 찾을 수 없습니다.' });
+    }
+
+    res.status(200).json(analysis);
+  } catch (error) {
+    console.error('분석 결과 조회 중 에러 발생:', error);
     res.status(500).json({ message: error.message || '서버 내부 오류가 발생했습니다.' });
   }
 };
