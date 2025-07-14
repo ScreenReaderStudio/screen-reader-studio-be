@@ -3,7 +3,7 @@ import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import jwt from 'jsonwebtoken';
+import { authenticateToken } from './middleware/authMiddleware.js';
 import authRouter from './routes/auth.js';
 import analysisRouter from './routes/analysis.js';
 
@@ -15,27 +15,14 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(cookieParser());
 
 app.use('/api/auth', authRouter);
 app.use('/api/analysis', analysisRouter);
 
-app.get('/api/users/me', (req, res) => {
-  try {
-    const token = req.cookies.accessToken;
-    if (!token) {
-      return res.status(401).json({ message: '인증되지 않았습니다.' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    res.status(200).json({ userId: decoded.userId });
-  } catch (error) {
-    console.error(error);
-
-    res.status(401).json({ message: '유효하지 않은 토큰입니다.' });
-  }
+app.get('/api/users/me', authenticateToken, (req, res) => {
+  res.status(200).json({ userId: req.userId });
 });
 
 const PORT = process.env.PORT || 8080;
