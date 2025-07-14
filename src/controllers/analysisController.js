@@ -28,8 +28,40 @@ export const saveAnalysisResult = async (req, res) => {
       return res.status(401).json({ message: '인증되지 않은 사용자입니다.' });
     }
 
-    if (!pageContent || !accessibilityAnalysis || !screenReaderScript || !selectedScreenReader) {
-      return res.status(400).json({ message: '저장할 분석 결과 데이터가 부족합니다.' });
+    if (!pageContent || typeof pageContent !== 'string' || pageContent.trim().length === 0) {
+      return res.status(400).json({
+        message: 'pageContent 필드는 비어 있지 않은 문자열이어야 합니다.',
+      });
+    }
+
+    if (
+      !accessibilityAnalysis ||
+      typeof accessibilityAnalysis !== 'object' ||
+      Object.keys(accessibilityAnalysis).length === 0
+    ) {
+      return res.status(400).json({
+        message: 'accessibilityAnalysis 필드는 비어 있지 않은 객체여야 합니다.',
+      });
+    }
+
+    if (
+      !screenReaderScript ||
+      !Array.isArray(screenReaderScript) ||
+      screenReaderScript.length === 0
+    ) {
+      return res.status(400).json({
+        message: 'screenReaderScript 필드는 비어 있지 않은 배열이어야 합니다.',
+      });
+    }
+
+    if (
+      !selectedScreenReader ||
+      typeof selectedScreenReader !== 'string' ||
+      selectedScreenReader.trim().length === 0
+    ) {
+      return res.status(400).json({
+        message: 'selectedScreenReader 필드는 비어 있지 않은 문자열이어야 합니다.',
+      });
     }
 
     const analysisId = await saveAnalysis({
