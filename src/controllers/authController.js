@@ -29,10 +29,10 @@ export const handleKakaoLogin = async (req, res) => {
 
     res.cookie('accessToken', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'none',
       path: '/',
-      maxAge: 60 * 60 * 1000 * 24,
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
     res.status(200).json({ user });
