@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "postinstall": "npx puppeteer browsers install",
     "start": "node src/index.js",
     "prepare": "husky"
   },
