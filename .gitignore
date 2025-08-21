@@ -7,3 +7,6 @@ node_modules/
 # OS system files
 .DS_Store
 Thumbs.db
+
+# puppeteer cache
+.cache/puppeteer
