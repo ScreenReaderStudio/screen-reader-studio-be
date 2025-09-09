@@ -49,7 +49,7 @@ export async function loadPageContent(page, { url, htmlContent }) {
       throw new Error('HTTP와 HTTPS만 허용됩니다.');
     }
 
-    await page.goto(url, { waitUntil: 'networkidle0' });
+    await page.goto(url, { waitUntil: 'networkidle0', timeout: 0 });
 
     return page.content();
   }
@@ -59,7 +59,7 @@ export async function loadPageContent(page, { url, htmlContent }) {
       throw new Error('유효하지 않은 HTML 콘텐츠가 제공됐습니다.');
     }
 
-    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0', timeout: 0 });
 
     return page.content();
   }

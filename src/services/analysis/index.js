@@ -18,6 +18,8 @@ export const analyzeAccessibility = async ({ url, htmlContent, screenReader }) =
     });
 
     const page = await browser.newPage();
+    page.setDefaultTimeout(0);
+    page.setDefaultNavigationTimeout(0);
     const rawContent = await loadPageContent(page, { url, htmlContent });
     const { screenReaderScript, accessibilityAnalysis } = await analyzePage(page, screenReader);
     const pageContentWithHighlighter = injectHighlighterScript(rawContent);
