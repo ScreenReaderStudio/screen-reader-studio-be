@@ -1,4 +1,7 @@
-import 'dotenv/config';
+import './config/env.js';
+
+const nodeEnv = process.env.NODE_ENV || 'development';
+console.log(`환경: ${nodeEnv}`);
 
 import cors from 'cors';
 import express from 'express';
@@ -28,4 +31,6 @@ app.get('/api/users/me', authenticateToken, (req, res) => {
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Environment: ${nodeEnv}`);
+  console.log(`Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`);
 });
